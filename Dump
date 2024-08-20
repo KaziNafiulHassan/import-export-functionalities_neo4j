@@ -22,6 +22,53 @@ soup = BeautifulSoup(response.text, 'html.parser')
 #print(soup.prettify())
 
 
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
+
+try:
+    # Set up the Selenium WebDriver
+    driver = webdriver.Chrome()
+
+    # Navigate to the target URL
+    driver.get("https://www.norman-network.com/nds/empodat/chemicalSearch.php")
+
+    # Check if the browser window is still open
+    if len(driver.window_handles) > 0:
+        print("Browser window is open. Attempting to find the country dropdown...")
+
+        # Wait for the country dropdown to load and then select "Germany"
+        country_element = WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.NAME, 'country'))  # Try changing 'NAME' to 'ID' or 'XPATH' if needed
+        )
+        country_element.send_keys('Germany')
+
+        # Find the chemical name input field and enter "Mercury"
+        chemname_element = driver.find_element(By.NAME, 'chemname')
+        chemname_element.send_keys('Mercury')
+
+        # Submit the form
+        driver.find_element(By.NAME, 'submit').click()
+
+        print("Form submitted successfully.")
+    else:
+        print("Browser window is not available.")
+
+except TimeoutException as e:
+    print(f"Timeout while waiting for an element: {str(e)}")
+except NoSuchElementException as e:
+    print(f"Could not find an element: {str(e)}")
+
+finally:
+    # Ensure that the browser is closed properly
+    driver.quit()
+
+
+
+
+
 Step 2: Parse the Results
 # Parse the resulting data
 table = soup.find('table', {'class': 'resultsTable'})
