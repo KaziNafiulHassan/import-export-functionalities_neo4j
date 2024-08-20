@@ -28,6 +28,10 @@ WITH row WHERE NOT row.species IS NULL
 MERGE (n:Species { species: row.species })
 ON CREATE SET n.DTXSID = row.DTXSID
 ON CREATE SET n.species = row.species, n.DTXSID = row.DTXSID;
+// Ensure Correct Labeling of Species Nodes
+MATCH (n:Species)
+SET n.name = n.species
+REMOVE n.DTXSID
 
 // Relationships
 // Substance -> Site (MEASURED_AT)
