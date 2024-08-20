@@ -26,12 +26,12 @@ SET n.DTXSID = row.DTXSID, n.lat = row.lat, n.lon = row.lon, n.country = row.cou
 LOAD CSV WITH HEADERS FROM $file_2 AS row
 WITH row WHERE NOT row.species IS NULL
 MERGE (n:Species { species: row.species })
-ON CREATE SET n.DTXSID = row.DTXSID
-ON CREATE SET n.species = row.species, n.DTXSID = row.DTXSID;
+ON CREATE SET n.DTXSID = row.DTXSID, n.species = row.species;
+
 // Ensure Correct Labeling of Species Nodes
 MATCH (n:Species)
 SET n.name = n.species
-REMOVE n.DTXSID
+REMOVE n.DTXSID;
 
 // Relationships
 // Substance -> Site (MEASURED_AT)
