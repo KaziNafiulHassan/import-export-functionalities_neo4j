@@ -1,0 +1,8 @@
+Chemical data
+http://127.0.0.1:5001/api/data1 
+
+Exposure data
+http://127.0.0.1:5001/api/data2
+
+Hazard data
+http://127.0.0.1:5001/api/data3
