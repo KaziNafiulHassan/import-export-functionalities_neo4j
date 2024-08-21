@@ -24,7 +24,7 @@ SET n.DTXSID = row.DTXSID,
 LOAD CSV WITH HEADERS FROM 'file:///05_hazard_data.csv' AS row
 WITH row WHERE NOT row.species IS NULL
 MERGE (n:Species { species: row.species })
-ON CREATE SET n.DTXSID = row.DTXSID, n.species = row.species;
+ON CREATE SET n.species = row.species;
 
 // Load Use_Group Nodes
 LOAD CSV WITH HEADERS FROM 'file:///01_chemical_data.csv' AS row
