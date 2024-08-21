@@ -60,8 +60,8 @@ def load_species_nodes(tx, csv_reader):
             # Create or update Species nodes with species name and DTXSID
             tx.run("""
                 MERGE (n:Species { species: $species })
-                ON CREATE SET n.DTXSID = $DTXSID, n.species = $species
-            """, species=row['species'], DTXSID=row['DTXSID'])
+                ON CREATE SET n.species = $species
+            """, species=row['species'])
 
 # Function to load Use_Group nodes from CSV data
 def load_use_group_nodes(tx, csv_reader):
