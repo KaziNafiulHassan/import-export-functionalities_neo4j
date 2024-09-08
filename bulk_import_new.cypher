@@ -2,9 +2,9 @@
 CREATE CONSTRAINT FOR (s:Substance) REQUIRE s.DTXSID IS UNIQUE;
 CREATE CONSTRAINT FOR (st:Site) REQUIRE (st.station_name_n, st.lat, st.lon) IS UNIQUE;
 
-// Step 2: Import Substance Nodes using apoc.load.csv and apoc.periodic.iterate for batch processing
+// Step 2: Import Substance Nodes in batches using apoc.periodic.iterate
 CALL apoc.periodic.iterate(
-  "CALL apoc.load.csv('file:///01_chemical_data.csv') YIELD map AS row RETURN row",
+  "LOAD CSV WITH HEADERS FROM 'file:///01_chemical_data.csv' AS row RETURN row",
   "MERGE (s:Substance {DTXSID: row.DTXSID})
    ON CREATE SET 
      s.Name = COALESCE(row.Name, 'NA'),
@@ -14,9 +14,9 @@ CALL apoc.periodic.iterate(
   {batchSize: 10000, iterateList: true}
 );
 
-// Step 3: Import Site Nodes using apoc.load.csv and apoc.periodic.iterate
+// Step 3: Import Site Nodes in batches
 CALL apoc.periodic.iterate(
-  "CALL apoc.load.csv('file:///03_exposure_data_measured.csv') YIELD map AS row RETURN row",
+  "LOAD CSV WITH HEADERS FROM 'file:///03_exposure_data_measured.csv' AS row RETURN row",
   "MERGE (st:Site {station_name_n: row.station_name_n, lat: COALESCE(row.lat, 'NA'), lon: COALESCE(row.lon, 'NA')})
    ON CREATE SET
      st.country = COALESCE(row.country, 'NA'),
@@ -25,14 +25,14 @@ CALL apoc.periodic.iterate(
   {batchSize: 10000, iterateList: true}
 );
 
-// Step 4: Create 3 main Species nodes (this is a small operation, so no batching required)
+// Step 4: Create 3 main Species nodes
 MERGE (sp1:Species {species: 'fish'})
 MERGE (sp2:Species {species: 'algae'})
 MERGE (sp3:Species {species: 'crustacean'});
 
-// Step 5: Create MEASURED_AT Relationships for Substances and Sites
+// Step 5: Create MEASURED_AT Relationships in batches
 CALL apoc.periodic.iterate(
-  "CALL apoc.load.csv('file:///03_exposure_data_measured.csv') YIELD map AS row RETURN row",
+  "LOAD CSV WITH HEADERS FROM 'file:///03_exposure_data_measured.csv' AS row RETURN row",
   "MATCH (s:Substance {DTXSID: row.DTXSID})
    MATCH (st:Site {station_name_n: row.station_name_n})
    MERGE (s)-[:MEASURED_AT {
@@ -43,9 +43,9 @@ CALL apoc.periodic.iterate(
   {batchSize: 10000, iterateList: true}
 );
 
-// Step 6: Create TESTED_FOR_TOXICITY Relationships between Substances and Species
+// Step 6: Create TESTED_FOR_TOXICITY Relationships in batches
 CALL apoc.periodic.iterate(
-  "CALL apoc.load.csv('file:///05_hazard_data.csv') YIELD map AS row RETURN row",
+  "LOAD CSV WITH HEADERS FROM 'file:///05_hazard_data.csv' AS row RETURN row",
   "MATCH (s:Substance {DTXSID: row.DTXSID})
    MATCH (sp:Species {species: row.species})
    MERGE (s)-[:TESTED_FOR_TOXICITY {
